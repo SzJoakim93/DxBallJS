@@ -6,15 +6,19 @@ document.addEventListener("click", clickHandler, false);
 document.addEventListener("mousemove", mouseMoveHandler, false);
 
 function keyDownHandler(e) {
-  keystates[e.which] = true;
-  
-  if (e.which === KEY_RETURN) {
+  processKeyDown(e.which);
+}
+
+function processKeyDown(keyCode) {
+  keystates[keyCode] = true;
+
+  if (keyCode === KEY_RETURN && scene.select) {
     scene.select();
-  } else if (e.which === KEY_UP) {
+  } else if (keyCode === KEY_UP && scene.selectPrev) {
     scene.selectPrev();
-  } else if (e.which === KEY_DOWN) {
+  } else if (keyCode === KEY_DOWN && scene.selectNext) {
     scene.selectNext();
-  } else if (e.which === KEY_ESCAPE) {
+  } else if (keyCode === KEY_ESCAPE && scene.back) {
     scene.back();
   }
 }

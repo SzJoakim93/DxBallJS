@@ -77,11 +77,15 @@ function InGame() {
         if (document.pointerLockElement === canvas) {
             document.exitPointerLock();
         }
+        document.documentElement.classList.remove("in-game");
+        document.body.classList.remove("in-game");
         scene = mainMenu;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
     this.switch = function () {
+        document.documentElement.classList.add("in-game");
+        document.body.classList.add("in-game");
         scene = this;
         this.redrawMap();
     }
@@ -321,6 +325,18 @@ function InGame() {
         }
     }
 
+    this.movePaddleBy = function (delta) {
+        if (this.fallBallCountdown.isLaunched()) {
+            return;
+        }
+
+        if (delta > 0) {
+            this.paddle.moveRight(delta);
+        } else if (delta < 0) {
+            this.paddle.moveLeft(-delta);
+        }
+    }
+
     this.mouseMove = function (e) {
         if (this.fallBallCountdown.isLaunched()) {
             return;
@@ -334,19 +350,14 @@ function InGame() {
         }
 
         if (mouseDelta != null) {
-
-            if (mouseDelta > 0) {
-                this.paddle.moveRight(mouseDelta);
-            } else if (mouseDelta < 0) {
-                this.paddle.moveLeft(-mouseDelta);
-            }
+            this.movePaddleBy(mouseDelta);
         }
 
         this.prevMouseX = e.clientX;
     }
 
     this.click = function (e) {
-        if (canvas.requestPointerLock && document.pointerLockElement !== canvas) {
+        if (e.pointerType !== "touch" && canvas.requestPointerLock && document.pointerLockElement !== canvas) {
             canvas.requestPointerLock();
         }
         this.launchBall();
@@ -436,6 +447,8 @@ function fallDownBall() {
     player.lives--;
     inGame.isDrawLivesNeeded = true;
     if (player.lives === 0) {
+        document.documentElement.classList.remove("in-game");
+        document.body.classList.remove("in-game");
         highScore.load(true);
         scene = highScore;
     } else {

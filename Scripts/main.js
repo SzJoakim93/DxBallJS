@@ -24,6 +24,8 @@ var scene = mainMenu;
 var particleManager = new ParticleManager();
 var explosion = new Explosion();
 
+setupGameplayTouchControls(canvas);
+
 function sizeCanvas() {
     var scaleX = (innerWidth - 20) / canvas.width;
     var scaleY = (innerHeight - 20) / canvas.height;

@@ -52,6 +52,8 @@ function MainMenu() {
     }
 
     this.switch = function () {
+        document.documentElement.classList.remove("in-game");
+        document.body.classList.remove("in-game");
         scene = this;
         ctx.drawImage(this.menuScreen, 0, 0);
     }
