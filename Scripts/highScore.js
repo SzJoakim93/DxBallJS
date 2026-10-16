@@ -4,17 +4,65 @@ function HighScore() {
     this.selected = 0;
     this.currentPos = 0;
     this.highScores = [];
+    this.virtualKeyboard = new VirtualKeyboard(82, 286, 68, 36);
 
-    this.selectPrev = function() {}
-    this.selectNext = function() {}
+    this.isEnteringName = function() {
+        return this.selected === 0;
+    }
+
+    this.updateInputMode = function() {
+        this.virtualKeyboard.visible = this.isEnteringName() &&
+            (("ontouchstart" in window) || navigator.maxTouchPoints > 0 || isGamePadUsed);
+    }
+
+    this.selectPrev = function() {
+        this.updateInputMode();
+        if (this.virtualKeyboard.visible) {
+            this.virtualKeyboard.move(0, -1);
+        }
+    }
+
+    this.selectNext = function() {
+        this.updateInputMode();
+        if (this.virtualKeyboard.visible) {
+            this.virtualKeyboard.move(0, 1);
+        }
+    }
+
+    this.selectLeft = function() {
+        this.updateInputMode();
+        if (this.virtualKeyboard.visible) {
+            this.virtualKeyboard.move(-1, 0);
+        }
+    }
+
+    this.selectRight = function() {
+        this.updateInputMode();
+        if (this.virtualKeyboard.visible) {
+            this.virtualKeyboard.move(1, 0);
+        }
+    }
+
     this.back = function() {}
 
     this.select = function() {
         if (this.selected === 0) {
-            this.selected = 1;
-            saveData("js_ball_high_scores", JSON.stringify(this.highScores));
+            this.updateInputMode();
+            if (this.virtualKeyboard.visible) {
+                this.virtualKeyboard.select(this);
+            } else {
+                this.finishNameEntry();
+            }
         } else {
             scene = mainMenu
+        }
+    }
+
+    this.finishNameEntry = function() {
+        if (this.selected === 0) {
+            this.selected = 1;
+            this.virtualKeyboard.visible = false;
+            saveData("js_ball_high_scores", JSON.stringify(this.highScores));
         }
     }
 
@@ -29,7 +77,7 @@ function HighScore() {
     }
 
     this.update = function() {
-
+        this.updateInputMode();
     }
 
     this.draw = function() {
@@ -46,11 +94,35 @@ function HighScore() {
             drawText(400, 184 + (i*20), i === this.currentPos ? gold : white, this.highScores[i].Score);
             drawText(450, 184 + (i*20), i === this.currentPos ? gold : white, this.highScores[i].Board);
         }
+
+        if (this.virtualKeyboard.visible) {
+            ctx.fillStyle = "#000";
+            ctx.fillRect(78, 280, 484, 190);
+            drawText(82, 278, gold, "Enter your name");
+            this.virtualKeyboard.draw();
+        }
+    }
+
+    this.click = function(e) {
+        this.updateInputMode();
+        if (!this.virtualKeyboard.visible) {
+            return;
+        }
+
+        var rect = canvas.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+            var x = (e.clientX - rect.left) * canvas.width / rect.width;
+            var y = (e.clientY - rect.top) * canvas.height / rect.height;
+            this.virtualKeyboard.selectAt(x, y, this);
+        }
     }
 
     this.load = function(isEdit) {
         this.selected = 1;
         this.currentPos = 16;
+        this.virtualKeyboard.visible = false;
+        this.virtualKeyboard.selectedRow = 0;
+        this.virtualKeyboard.selectedCol = 0;
         this.highScores = JSON.parse(loadData("js_ball_high_scores") || "null");
         if (this.highScores === null) {
             this.highScores = [
