@@ -450,7 +450,7 @@ function fallDownBall() {
         document.documentElement.classList.remove("in-game");
         document.body.classList.remove("in-game");
         highScore.load(true);
-        scene = highScore;
+        highScore.switch();
     } else {
         inGame.resetGameState();
     }

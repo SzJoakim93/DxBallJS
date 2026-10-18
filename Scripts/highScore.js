@@ -4,7 +4,7 @@ function HighScore() {
     this.selected = 0;
     this.currentPos = 0;
     this.highScores = [];
-    this.virtualKeyboard = new VirtualKeyboard(82, 286, 68, 36);
+    this.virtualKeyboard = new VirtualKeyboard(0, 286, 64, 36);
 
     this.isEnteringName = function() {
         return this.selected === 0;
@@ -54,7 +54,7 @@ function HighScore() {
                 this.finishNameEntry();
             }
         } else {
-            scene = mainMenu
+            mainMenu.switch();
         }
     }
 
@@ -62,6 +62,7 @@ function HighScore() {
         if (this.selected === 0) {
             this.selected = 1;
             this.virtualKeyboard.visible = false;
+            this.virtualKeyboard.clear();
             saveData("js_ball_high_scores", JSON.stringify(this.highScores));
         }
     }
@@ -80,8 +81,16 @@ function HighScore() {
         this.updateInputMode();
     }
 
-    this.draw = function() {
+    this.switch = function() {
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#000";
         ctx.drawImage(this.titleImg, 160, 8);
+        scene = this;
+    }
+
+    this.draw = function() {
+        ctx.fillStyle = "#000";
+        ctx.fillRect(16, 160, 480, 400);
 
         drawText(16, 164, white, "Place");
         drawText(70, 164, white, "Name");
@@ -96,10 +105,7 @@ function HighScore() {
         }
 
         if (this.virtualKeyboard.visible) {
-            ctx.fillStyle = "#000";
-            ctx.fillRect(78, 280, 484, 190);
-            drawText(82, 278, gold, "Enter your name");
-            this.virtualKeyboard.draw();
+            this.virtualKeyboard.draw("Enter your name: " + this.highScores[this.currentPos].Name);
         }
     }
 

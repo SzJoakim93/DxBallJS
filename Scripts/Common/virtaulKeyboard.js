@@ -30,10 +30,14 @@ function VirtualKeyboard(x, y, keyWidth, keyHeight) {
         return KEY_LAYOUT[this.selectedRow][this.selectedCol];
     };
 
-    this.draw = function() {
+    this.draw = function(focustitle) {
         if (!this.visible) {
             return;
         }
+
+        ctx.fillStyle = "#000";
+        ctx.fillRect(this.x - 2, this.y - 2, this.keyWidth * KEY_LAYOUT[0].length + 4, this.keyHeight * KEY_LAYOUT.length + 4);
+        drawText(this.x + 82, this.y - 8, gold, focustitle);
 
         ctx.save();
         ctx.font = "20px monospace";
@@ -44,7 +48,6 @@ function VirtualKeyboard(x, y, keyWidth, keyHeight) {
             var currentOffsetX = this.x + this.rowOffsets[i];
             for (var j = 0; j < KEY_LAYOUT[i].length; j++) {
                 var keyWidth = this.getOverrideWidth(i, j);
-                currentOffsetX += j * keyWidth;
                 var x = currentOffsetX;
                 var y = this.y + i * this.keyHeight;
 
@@ -60,10 +63,17 @@ function VirtualKeyboard(x, y, keyWidth, keyHeight) {
                 }
 
                 ctx.fillText(KEY_LAYOUT[i][j], x + keyWidth/2, y + this.keyHeight/2);
+
+                currentOffsetX += keyWidth;
             }
         }
         ctx.restore();
     };
+
+    this.clear = function() {
+        ctx.fillStyle = "#000";
+        ctx.clearRect(this.x - 2, this.y - 2, this.keyWidth * KEY_LAYOUT[0].length + 4, this.keyHeight * KEY_LAYOUT.length + 4);
+    }
 
     this.move = function(dx, dy) {
         this.selectedRow = Math.max(0, Math.min(KEY_LAYOUT.length - 1, this.selectedRow + dy));
@@ -88,16 +98,23 @@ function VirtualKeyboard(x, y, keyWidth, keyHeight) {
     };
 
     this.selectAt = function(x, y, scene) {
-        var col = Math.floor((x - this.x) / this.keyWidth);
         var row = Math.floor((y - this.y) / this.keyHeight);
-
-        if (row < 0 || row >= KEY_LAYOUT.length || col < 0 || col >= KEY_LAYOUT[row].length) {
+        if (row < 0 || row >= KEY_LAYOUT.length || y >= this.y + (row + 1) * this.keyHeight - 4) {
             return false;
         }
 
-        var keyX = this.x + col * this.keyWidth;
-        var keyY = this.y + row * this.keyHeight;
-        if (x >= keyX + this.keyWidth - 4 || y >= keyY + this.keyHeight - 4) {
+        var col = -1;
+        var currentOffsetX = this.x + this.rowOffsets[row];
+        for (var j = 0; j < KEY_LAYOUT[row].length; j++) {
+            var keyWidth = this.getOverrideWidth(row, j);
+            if (x >= currentOffsetX && x < currentOffsetX + keyWidth - 4) {
+                col = j;
+                break;
+            }
+            currentOffsetX += keyWidth;
+        }
+
+        if (col < 0) {
             return false;
         }
 

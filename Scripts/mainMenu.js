@@ -55,6 +55,7 @@ function MainMenu() {
         document.documentElement.classList.remove("in-game");
         document.body.classList.remove("in-game");
         scene = this;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(this.menuScreen, 0, 0);
     }
 
