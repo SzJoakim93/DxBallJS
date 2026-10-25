@@ -11,6 +11,8 @@ var green = "#00AA00";
 
 var font = new Font("GFX/Font.png", 6, 6, 32, 31);
 
+var virtualKeyboard = new VirtualKeyboard(0, 286, 64, 36);
+
 var mainMenu = new MainMenu();
 var inGame = new InGame();
 var highScore = new HighScore();
@@ -50,6 +52,7 @@ function main() {
         scene.draw();
         particleManager.apply();
         explosion.applyExplosions();
+        virtualKeyboard.draw();
     }
     _requestAnimationFrame(main);
 }

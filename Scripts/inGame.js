@@ -356,7 +356,7 @@ function InGame() {
         this.prevMouseX = e.clientX;
     }
 
-    this.click = function (e) {
+    this.mouseClick = function (e) {
         if (e.pointerType !== "touch" && canvas.requestPointerLock && document.pointerLockElement !== canvas) {
             canvas.requestPointerLock();
         }

@@ -2,18 +2,14 @@ var keystates = [];
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
-document.addEventListener("click", clickHandler, false);
-document.addEventListener("mousemove", mouseMoveHandler, false);
 
 function keyDownHandler(e) {
-  isGamePadUsed = false;
-
-  if (scene.isEnteringName && scene.isEnteringName()) {
-    if (e.key === "Backspace") {
+  if (scene.IsInputActive && scene.IsInputActive()) {
+    if (e.which === KEY_BACKSPACE) {
       e.preventDefault();
       scene.inputChar("Backspace");
       return;
-    } else if (e.key === " ") {
+    } else if (e.which === KEY_SPACE) {
       e.preventDefault();
       scene.inputChar(" ");
       return;
@@ -21,9 +17,9 @@ function keyDownHandler(e) {
       e.preventDefault();
       scene.inputChar(e.key.toUpperCase());
       return;
-    } else if (e.key === "Enter") {
+    } else if (e.which === KEY_RETURN) {
       e.preventDefault();
-      scene.finishNameEntry();
+      scene.finishInput();
       return;
     }
   }
@@ -33,6 +29,22 @@ function keyDownHandler(e) {
 
 function processKeyDown(keyCode) {
   keystates[keyCode] = true;
+
+  if (virtualKeyboard.visible) {
+    if (keyCode === KEY_UP) {
+      virtualKeyboard.move(0, -1);
+    } else if (keyCode === KEY_DOWN) {
+      virtualKeyboard.move(0, 1);
+    } else if (keyCode === KEY_LEFT) {
+      virtualKeyboard.move(-1, 0);
+    } else if (keyCode === KEY_RIGHT) {
+      virtualKeyboard.move(1, 0);
+    } else if (keyCode === KEY_RETURN) {
+      virtualKeyboard.select();
+    }
+
+    return;
+  }
 
   if (keyCode === KEY_RETURN && scene.select) {
     scene.select();
@@ -51,16 +63,4 @@ function processKeyDown(keyCode) {
 
 function keyUpHandler(e) {
   keystates[e.which] = false;
-}
-
-function clickHandler(e) {
-  if (scene.click) {
-    scene.click(e);
-  }
-}
-
-function mouseMoveHandler(e) {
-  if (scene.mouseMove) {
-    scene.mouseMove(e);
-  }
 }

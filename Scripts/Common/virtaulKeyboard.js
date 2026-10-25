@@ -30,15 +30,12 @@ function VirtualKeyboard(x, y, keyWidth, keyHeight) {
         return KEY_LAYOUT[this.selectedRow][this.selectedCol];
     };
 
-    this.draw = function(focustitle) {
+    this.draw = function() {
         if (!this.visible) {
             return;
         }
 
-        ctx.fillStyle = "#000";
-        ctx.fillRect(this.x - 2, this.y - 2, this.keyWidth * KEY_LAYOUT[0].length + 4, this.keyHeight * KEY_LAYOUT.length + 4);
-        drawText(this.x + 82, this.y - 8, gold, focustitle);
-
+        this.clear();
         ctx.save();
         ctx.font = "20px monospace";
         ctx.textAlign = "center";
@@ -82,17 +79,17 @@ function VirtualKeyboard(x, y, keyWidth, keyHeight) {
         this.selectedCol = Math.max(0, Math.min(rowLength - 1, this.selectedCol + dx));
     };
 
-    this.select = function(scene) {
+    this.select = function() {
         var key = this.getKey();
 
-        if (key === "BACK") {
+        if (key === "BACK" && scene.inputChar) {
             scene.inputChar("Backspace");
-        } else if (key === "SPACE") {
+        } else if (key === "SPACE" && scene.inputChar) {
             scene.inputChar(" ");
-        } else if (key === "OK") {
+        } else if (key === "OK" && scene.finishInput) {
             this.visible = false;
-            scene.finishNameEntry();
-        } else {
+            scene.finishInput();
+        } else if (scene.inputChar) {
             scene.inputChar(key);
         }
     };
@@ -120,8 +117,13 @@ function VirtualKeyboard(x, y, keyWidth, keyHeight) {
 
         this.selectedRow = row;
         this.selectedCol = col;
-        this.select(scene);
+        this.select();
         return true;
+    };
+
+    this.setVisibility = function(visible) {
+        this.visible = visible &&
+            (("ontouchstart" in window) || navigator.maxTouchPoints > 0 || isGamePadUsed);
     };
 
     this.getOverrideWidth = function(row, col) {
